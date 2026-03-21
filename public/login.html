@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Login — CED Pre-Enrollment</title>
+<style>
+  :root {
+    --maroon:      #6e1020;
+    --maroon-dark: #4a0a15;
+    --maroon-light:#8c1428;
+    --white:       #ffffff;
+    --cream:       #f9f6f6;
+    --muted:       #888;
+    --error:       #c0392b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--cream);
+    font-family: Arial, sans-serif;
+  }
+
+  .card {
+    background: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .logo-area {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .logo-area img {
+    height: 72px;
+    margin-bottom: 0.75rem;
+  }
+
+  .logo-area h1 {
+    font-size: 1.1rem;
+    color: var(--maroon);
+    font-weight: 600;
+  }
+
+  .logo-area p {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 1.25rem 0;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--maroon-dark);
+    margin-bottom: 6px;
+  }
+
+  input {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input:focus { border-color: var(--maroon); }
+
+  .btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--maroon);
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn:hover { background: var(--maroon-dark); }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .error-msg {
+    display: none;
+    font-size: 13px;
+    color: var(--error);
+    margin-top: 0.75rem;
+    padding: 8px 12px;
+    background: rgba(192,57,43,0.07);
+    border-left: 3px solid var(--error);
+    border-radius: 3px;
+  }
+
+  .portal-links {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .portal-links a {
+    color: var(--maroon);
+    text-decoration: none;
+    margin: 0 8px;
+  }
+
+  .portal-links a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo-area">
+    <img src="/assets/CED-Logo.jpg" alt="CED Logo"/>
+    <!-- swap the src above to wherever you put your logo file -->
+    <h1>CED Pre-Enrollment System</h1>
+    <p>Login Portal</p>
+  </div>
+
+  <hr class="divider"/>
+
+  <label for="username">ID Number</label>
+  <input type="text" id="username" placeholder="e.g. 26-1-00001"/>
+
+  <label for="password">Password</label>
+  <input type="password" id="password" placeholder="Enter your password"/>
+
+  <button class="btn" id="loginBtn" onclick="handleLogin()">Sign In</button>
+
+  <div class="error-msg" id="errorMsg"></div>
+</div>
+
+<script>
+async function handleLogin() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const btn = document.getElementById('loginBtn');
+  document.getElementById('errorMsg').style.display = 'none';
+
+  if (!username || !password) {
+    showError('Please enter your ID number and password.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Signing in...';
+
+  try {
+    const res = await fetch('http://localhost:5000/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) { showError(data.message || 'Login failed.'); return; }
+
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('role', data.role);
+
+    if (data.role === 'student') {
+    window.location.href = '/student/dashboard.html';
+
+    } else if (data.role === 'admin') {
+    window.location.href = '/admin/dashboard.html';
+
+    } else if (data.role === 'business_office') {
+    window.location.href = '/bfo/dashboard.html';
+    
+    } else if (data.role === 'teacher') {
+    window.location.href = '/teacher/dashboard.html';
+    }
+
+    
+
+  } catch (err) {
+    showError('Cannot connect to server. Please try again.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Sign In';
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+</script>
+</body>
+</html>

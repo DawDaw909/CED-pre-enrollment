@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Business Office — CED Pre-Enrollment</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --maroon:      #6e1020;
+    --maroon-dark: #4a0a15;
+    --maroon-bg:   #fdf5f6;
+    --white:       #ffffff;
+    --gray-50:     #f8f8f8;
+    --gray-100:    #f0f0f0;
+    --gray-300:    #d0d0d0;
+    --gray-500:    #888;
+    --gray-700:    #444;
+    --success:     #1a7a4a;
+    --success-bg:  #edfaf3;
+    --error:       #c0392b;
+    --error-bg:    #fdf0ef;
+    --warning:     #b45309;
+    --warning-bg:  #fef9ee;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--gray-50);
+    color: var(--gray-700);
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 220px;
+    height: 100vh;
+    background: #1a0a00;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+  }
+
+  .sidebar-brand {
+    padding: 1.5rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .sidebar-brand img {
+    height: 40px;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .sidebar-brand h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 13px;
+    color: #fff;
+    line-height: 1.3;
+    font-weight: 400;
+  }
+
+  .sidebar-brand p {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 2px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .sidebar-nav { flex: 1; padding: 1rem 0; }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 1.25rem;
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .nav-item:hover { color: #fff; background: rgba(255,255,255,0.05); }
+  .nav-item.active { color: #fff; border-left-color: #e8c97a; background: rgba(255,255,255,0.07); }
+
+  .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+  .sidebar-footer {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .logout-btn {
+    width: 100%;
+    padding: 8px;
+    background: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.6);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .logout-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+  .main { margin-left: 220px; min-height: 100vh; display: flex; flex-direction: column; }
+
+  .topbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-100);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .topbar h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    color: var(--maroon-dark);
+    font-weight: 400;
+  }
+
+  .topbar-user { font-size: 12px; color: var(--gray-500); }
+
+  .content { padding: 2rem; flex: 1; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* SEARCH */
+  .search-card {
+    background: var(--white);
+    border: 1px solid var(--gray-100);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .search-card h3 {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--maroon-dark);
+    margin-bottom: 1rem;
+  }
+
+  .search-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .search-row input {
+    flex: 1;
+    padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    border: 1px solid var(--gray-300);
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-row input:focus { border-color: var(--maroon); }
+
+  .btn-search {
+    padding: 10px 20px;
+    background: var(--maroon);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-search:hover { background: var(--maroon-dark); }
+
+  /* TABLE */
+  .table-card {
+    background: var(--white);
+    border: 1px solid var(--gray-100);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .table-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  .table-header h3 {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--maroon-dark);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead th {
+    padding: 10px 1.5rem;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--gray-500);
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--gray-100);
+    transition: background 0.1s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--maroon-bg); }
+
+  tbody td { padding: 12px 1.5rem; color: var(--gray-700); }
+
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 10px;
+  }
+
+  .badge-ok    { background: var(--success-bg); color: var(--success); }
+  .badge-notok { background: var(--error-bg);   color: var(--error); }
+  .badge-new   { background: #e8f0fe; color: #1a56db; }
+  .badge-old   { background: #fef3c7; color: #92400e; }
+
+  .btn-confirm {
+    padding: 5px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    background: var(--success);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-confirm:hover { background: #155c38; }
+  .btn-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--gray-500);
+    font-size: 14px;
+  }
+
+  .alert {
+    display: none;
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-size: 13px;
+    margin-top: 1rem;
+    border-left: 3px solid;
+  }
+
+  .alert-success { background: var(--success-bg); color: var(--success); border-color: var(--success); }
+  .alert-error   { background: var(--error-bg);   color: var(--error);   border-color: var(--error); }
+
+  /* STATS */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--gray-100);
+    border-radius: 8px;
+    padding: 1.25rem;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gray-500);
+    margin-bottom: 6px;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 500;
+    color: var(--maroon);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .content { animation: fadeIn 0.3s ease both; }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <img src="/assets/CED-Logo.jpg" alt="CED"/>
+    <h2>CED Pre-Enrollment System</h2>
+    <p>Business Office</p>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-item active" onclick="showPanel('overview', this)">
+      <span class="nav-dot"></span> Overview
+    </div>
+    <div class="nav-item" onclick="showPanel('search', this)">
+      <span class="nav-dot"></span> Confirm Payment
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()">Sign Out</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <h1>Business Office</h1>
+    <span class="topbar-user" id="topbarUser">Business Office</span>
+  </div>
+
+  <div class="content">
+
+    <!-- OVERVIEW PANEL -->
+    <div class="panel active" id="panel-overview">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Students</div>
+          <div class="stat-value" id="statTotal">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Cleared for Enrollment</div>
+          <div class="stat-value" id="statCleared">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pending Payment</div>
+          <div class="stat-value" id="statPending">—</div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <h3>All Students — Payment Status</h3>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Student No.</th>
+              <th>Name</th>
+              <th>Course</th>
+              <th>Year</th>
+              <th>Type</th>
+              <th>Payment Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="overviewTableBody">
+            <tr><td colspan="7" class="empty-state">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SEARCH PANEL -->
+    <div class="panel" id="panel-search">
+      <div class="search-card">
+        <h3>Search Student</h3>
+        <div class="search-row">
+          <input type="text" id="searchInput" placeholder="Enter student number or name..." 
+            onkeydown="if(event.key==='Enter') searchStudent()"/>
+          <button class="btn-search" onclick="searchStudent()">Search</button>
+        </div>
+        <div class="alert alert-error" id="searchError"></div>
+      </div>
+
+      <div class="table-card" id="searchResults" style="display:none;">
+        <div class="table-header">
+          <h3>Search Results</h3>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Student No.</th>
+              <th>Name</th>
+              <th>Course</th>
+              <th>Year</th>
+              <th>Payment Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="searchTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:5000';
+let allStudents = [];
+
+function getToken() { return localStorage.getItem('token'); }
+
+function authHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${getToken()}`
+  };
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = '/login.html';
+}
+
+function showPanel(name, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  el.classList.add('active');
+}
+
+// ── LOAD ALL STUDENTS ──────────────────────────────────────
+async function loadOverview() {
+  try {
+    const res = await fetch(`${API}/api/students/all`, { headers: authHeaders() });
+    if (res.status === 401 || res.status === 403) { logout(); return; }
+    allStudents = await res.json();
+    renderOverview(allStudents);
+
+    document.getElementById('statTotal').textContent   = allStudents.length;
+    document.getElementById('statCleared').textContent = allStudents.filter(s => s.ok_to_enroll).length;
+    document.getElementById('statPending').textContent = allStudents.filter(s => !s.ok_to_enroll).length;
+  } catch (err) {
+    document.getElementById('overviewTableBody').innerHTML =
+      `<tr><td colspan="7" class="empty-state">Could not load students.</td></tr>`;
+  }
+}
+
+function renderOverview(students) {
+  const tbody = document.getElementById('overviewTableBody');
+  if (students.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No students found.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = students.map(s => `
+    <tr>
+      <td>${s.student_number}</td>
+      <td>${s.last_name}, ${s.first_name}</td>
+      <td>${s.course}</td>
+      <td>Year ${s.year_level}</td>
+      <td><span class="badge badge-${s.type}">${s.type.charAt(0).toUpperCase() + s.type.slice(1)}</span></td>
+      <td><span class="badge ${s.ok_to_enroll ? 'badge-ok' : 'badge-notok'}">${s.ok_to_enroll ? 'Cleared' : 'Pending'}</span></td>
+      <td>
+        ${!s.ok_to_enroll
+          ? `<button class="btn-confirm" onclick="confirmPayment(${s.id}, this)">Confirm Payment</button>`
+          : `<span style="font-size:12px; color:var(--gray-500);">Already cleared</span>`
+        }
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ── SEARCH STUDENT ─────────────────────────────────────────
+async function searchStudent() {
+  const query = document.getElementById('searchInput').value.trim();
+  const errorEl = document.getElementById('searchError');
+  errorEl.style.display = 'none';
+
+  if (!query) {
+    errorEl.textContent = 'Please enter a student number or name.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/api/students/search?query=${encodeURIComponent(query)}`, {
+      headers: authHeaders()
+    });
+    const results = await res.json();
+
+    document.getElementById('searchResults').style.display = 'block';
+
+    if (results.length === 0) {
+      document.getElementById('searchTableBody').innerHTML =
+        `<tr><td colspan="6" class="empty-state">No students found for "${query}".</td></tr>`;
+      return;
+    }
+
+    document.getElementById('searchTableBody').innerHTML = results.map(s => `
+      <tr>
+        <td>${s.student_number}</td>
+        <td>${s.last_name}, ${s.first_name}</td>
+        <td>${s.course}</td>
+        <td>Year ${s.year_level}</td>
+        <td><span class="badge ${s.ok_to_enroll ? 'badge-ok' : 'badge-notok'}">${s.ok_to_enroll ? 'Cleared' : 'Pending'}</span></td>
+        <td>
+          ${!s.ok_to_enroll
+            ? `<button class="btn-confirm" onclick="confirmPayment(${s.id}, this)">Confirm Payment</button>`
+            : `<span style="font-size:12px; color:var(--gray-500);">Already cleared</span>`
+          }
+        </td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    errorEl.textContent = 'Cannot connect to server.';
+    errorEl.style.display = 'block';
+  }
+}
+
+// ── CONFIRM PAYMENT ────────────────────────────────────────
+async function confirmPayment(studentId, btn) {
+  btn.disabled = true;
+  btn.textContent = 'Confirming...';
+
+  try {
+    const res = await fetch(`${API}/api/students/${studentId}/confirm-payment`, {
+      method: 'PATCH',
+      headers: authHeaders()
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      btn.disabled = false;
+      btn.textContent = 'Confirm Payment';
+      alert(data.message || 'Failed to confirm payment.');
+      return;
+    }
+
+    const td = btn.parentElement;
+    td.innerHTML = `<span style="font-size:12px; color:var(--success);">✓ Cleared</span>`;
+
+    const row = td.parentElement;
+    const statusCell = row.children[row.children.length - 2];
+    statusCell.innerHTML = `<span class="badge badge-ok">Cleared</span>`;
+
+    loadOverview();
+
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Confirm Payment';
+    alert('Cannot connect to server.');
+  }
+}
+
+// ── INIT ───────────────────────────────────────────────────
+if (!getToken() || localStorage.getItem('role') !== 'business_office') {
+  window.location.href = '/login.html';
+}
+
+document.getElementById('topbarUser').textContent = 'Business Office';
+loadOverview();
+</script>
+</body>
+</html>

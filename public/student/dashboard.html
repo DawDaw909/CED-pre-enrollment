@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Student Dashboard — CED Pre-Enrollment</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --maroon:      #6e1020;
+    --maroon-dark: #4a0a15;
+    --maroon-bg:   #fdf5f6;
+    --white:       #ffffff;
+    --gray-50:     #f8f8f8;
+    --gray-100:    #f0f0f0;
+    --gray-300:    #d0d0d0;
+    --gray-500:    #888;
+    --gray-700:    #444;
+    --success:     #1a7a4a;
+    --success-bg:  #edfaf3;
+    --error:       #c0392b;
+    --error-bg:    #fdf0ef;
+    --warning:     #b45309;
+    --warning-bg:  #fef9ee;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--gray-50);
+    color: var(--gray-700);
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 220px;
+    height: 100vh;
+    background: var(--maroon-dark);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+  }
+
+  .sidebar-brand {
+    padding: 1.5rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .sidebar-brand img {
+    height: 40px;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .sidebar-brand h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 13px;
+    color: #fff;
+    line-height: 1.3;
+    font-weight: 400;
+  }
+
+  .sidebar-brand p {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 2px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .sidebar-nav { flex: 1; padding: 1rem 0; }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 1.25rem;
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .nav-item:hover { color: #fff; background: rgba(255,255,255,0.05); }
+  .nav-item.active { color: #fff; border-left-color: #e8c97a; background: rgba(255,255,255,0.07); }
+  .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+  .sidebar-footer {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .logout-btn {
+    width: 100%;
+    padding: 8px;
+    background: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.6);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .logout-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+  .main { margin-left: 220px; min-height: 100vh; display: flex; flex-direction: column; }
+
+  .topbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-100);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .topbar h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    color: var(--maroon-dark);
+    font-weight: 400;
+  }
+
+  .topbar-user { font-size: 12px; color: var(--gray-500); }
+
+  .content { padding: 2rem; flex: 1; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* PROFILE CARD */
+  .profile-card {
+    background: var(--white);
+    border: 1px solid var(--gray-100);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .profile-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--maroon);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .profile-info h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    color: var(--maroon-dark);
+    font-weight: 400;
+    margin-bottom: 4px;
+  }
+
+  .profile-info p {
+    font-size: 13px;
+    color: var(--gray-500);
+    margin-bottom: 2px;
+  }
+
+  .profile-badges { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 10px;
+  }
+
+  .badge-ok      { background: var(--success-bg); color: var(--success); }
+  .badge-notok   { background: var(--error-bg);   color: var(--error); }
+  .badge-regular { background: var(--success-bg); color: var(--success); }
+  .badge-irregular { background: var(--warning-bg); color: var(--warning); }
+  .badge-new     { background: #e8f0fe; color: #1a56db; }
+  .badge-old     { background: #fef3c7; color: #92400e; }
+  .badge-gray    { background: var(--gray-100); color: var(--gray-500); }
+
+  /* NOTICES */
+  .notice-card {
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    border-left: 4px solid;
+    font-size: 13px;
+  }
+
+  .notice-warning { background: var(--warning-bg); border-color: var(--warning); color: var(--warning); }
+  .notice-error   { background: var(--error-bg);   border-color: var(--error);   color: var(--error); }
+  .notice-info    { background: #e8f0fe;            border-color: #1a56db;        color: #1a56db; }
+
+  .notice-type {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+
+  /* SUBJECTS TABLE */
+  .table-card {
+    background: var(--white);
+    border: 1px solid var(--gray-100);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .table-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .table-header h3 {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--maroon-dark);
+  }
+
+  .units-badge {
+    font-size: 12px;
+    color: var(--gray-500);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead th {
+    padding: 10px 1.5rem;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--gray-500);
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--gray-100);
+    transition: background 0.1s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--maroon-bg); }
+  tbody td { padding: 12px 1.5rem; color: var(--gray-700); }
+
+  .subject-code { font-weight: 500; color: var(--maroon); }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--gray-500);
+    font-size: 14px;
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 10px;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .content { animation: fadeIn 0.3s ease both; }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <img src="/assets/CED-Logo.jpg" alt="CED"/>
+    <h2>CED Pre-Enrollment System</h2>
+    <p>Student Portal</p>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-item active" onclick="showPanel('overview', this)">
+      <span class="nav-dot"></span> My Enrollment
+    </div>
+    <div class="nav-item" onclick="showPanel('notices', this)">
+      <span class="nav-dot"></span> Notices
+      <span id="noticeCount" style="display:none; background:#c0392b; color:#fff; font-size:10px; padding:1px 6px; border-radius:10px; margin-left:auto;"></span>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()">Sign Out</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <h1>My Dashboard</h1>
+    <span class="topbar-user" id="topbarUser">Student</span>
+  </div>
+
+  <div class="content">
+
+    <!-- OVERVIEW PANEL -->
+    <div class="panel active" id="panel-overview">
+
+      <div class="profile-card" id="profileCard">
+        <div class="profile-avatar" id="profileAvatar">—</div>
+        <div class="profile-info">
+          <h2 id="profileName">Loading...</h2>
+          <p id="profileCourse">—</p>
+          <p id="profileNumber">—</p>
+          <div class="profile-badges" id="profileBadges"></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;" id="noticesInline"></div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Enrolled Subjects</h3>
+          <span class="units-badge" id="totalUnits"></span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Subject</th>
+              <th>Units</th>
+              <th>Type</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="subjectTableBody">
+            <tr><td colspan="5" class="empty-state">Loading subjects...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- NOTICES PANEL -->
+    <div class="panel" id="panel-notices">
+      <div id="noticesList">
+        <div class="empty-state">Loading notices...</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:5000';
+
+function getToken() { return localStorage.getItem('token'); }
+
+function authHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${getToken()}`
+  };
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = '/login.html';
+}
+
+function showPanel(name, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  el.classList.add('active');
+}
+
+// ── LOAD STUDENT DATA ──────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const res = await fetch(`${API}/api/students/me`, { headers: authHeaders() });
+    if (res.status === 401 || res.status === 403) { logout(); return; }
+
+    const data = await res.json();
+    const { student, subjects, notices } = data;
+
+    // Profile
+    const initials = student.first_name[0] + student.last_name[0];
+    document.getElementById('profileAvatar').textContent = initials.toUpperCase();
+    document.getElementById('profileName').textContent = `${student.first_name} ${student.last_name}`;
+    document.getElementById('profileCourse').textContent = `${student.course} — Year ${student.year_level}`;
+    document.getElementById('profileNumber').textContent = student.student_number;
+    document.getElementById('topbarUser').textContent = student.first_name + ' ' + student.last_name;
+
+    // Badges
+    const badgesEl = document.getElementById('profileBadges');
+    badgesEl.innerHTML = `
+      <span class="badge badge-${student.type}">${student.type.charAt(0).toUpperCase() + student.type.slice(1)}</span>
+      <span class="badge ${student.ok_to_enroll ? 'badge-ok' : 'badge-notok'}">${student.ok_to_enroll ? 'Cleared for Enrollment' : 'Payment Pending'}</span>
+      ${student.status ? `<span class="badge badge-${student.status}">${student.status}</span>` : ''}
+    `;
+
+    // Subjects
+    const tbody = document.getElementById('subjectTableBody');
+    if (subjects.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No subjects enrolled yet.</td></tr>`;
+    } else {
+      tbody.innerHTML = subjects.map(s => `
+        <tr>
+          <td class="subject-code">${s.code}</td>
+          <td>${s.name}</td>
+          <td>${s.units}</td>
+          <td><span class="badge badge-gray">${s.type}</span></td>
+          <td><span class="badge badge-${s.status === 'auto_enrolled' ? 'new' : 'old'}">${s.status.replace(/_/g, ' ')}</span></td>
+        </tr>
+      `).join('');
+
+      const total = subjects.reduce((sum, s) => sum + s.units, 0);
+      document.getElementById('totalUnits').textContent = `Total: ${total} units`;
+    }
+
+    // Notices inline on overview
+    const noticesInline = document.getElementById('noticesInline');
+    if (notices.length > 0) {
+      noticesInline.innerHTML = notices.map(n => `
+        <div class="notice-card notice-warning">
+          <div class="notice-type">${n.type.replace(/_/g, ' ')}</div>
+          <div>${n.message}</div>
+        </div>
+      `).join('');
+
+      // Update sidebar notice count
+      const countEl = document.getElementById('noticeCount');
+      countEl.textContent = notices.length;
+      countEl.style.display = 'inline';
+    }
+
+    // Notices panel
+    const noticesList = document.getElementById('noticesList');
+    if (notices.length === 0) {
+      noticesList.innerHTML = `<div class="empty-state">No pending notices.</div>`;
+    } else {
+      noticesList.innerHTML = notices.map(n => `
+        <div class="notice-card notice-warning">
+          <div class="notice-type">${n.type.replace(/_/g, ' ')}</div>
+          <div>${n.message}</div>
+          <div style="font-size:11px; color:var(--gray-500); margin-top:6px;">${new Date(n.created_at).toLocaleDateString()}</div>
+        </div>
+      `).join('');
+    }
+
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// ── INIT ───────────────────────────────────────────────────
+if (!getToken() || localStorage.getItem('role') !== 'student') {
+  window.location.href = '/login.html';
+}
+
+loadDashboard();
+</script>
+</body>
+</html>

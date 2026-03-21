@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Teacher Dashboard — CED Pre-Enrollment</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --maroon:      #6e1020;
+    --maroon-dark: #4a0a15;
+    --maroon-bg:   #fdf5f6;
+    --white:       #ffffff;
+    --gray-50:     #f8f8f8;
+    --gray-100:    #f0f0f0;
+    --gray-300:    #d0d0d0;
+    --gray-500:    #888;
+    --gray-700:    #444;
+    --success:     #1a7a4a;
+    --success-bg:  #edfaf3;
+    --error:       #c0392b;
+    --error-bg:    #fdf0ef;
+    --warning:     #b45309;
+    --warning-bg:  #fef9ee;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--gray-50);
+    color: var(--gray-700);
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 220px;
+    height: 100vh;
+    background: #1a0a00;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+  }
+
+  .sidebar-brand {
+    padding: 1.5rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .sidebar-brand img {
+    height: 40px;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  .sidebar-brand h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 13px;
+    color: #fff;
+    line-height: 1.3;
+    font-weight: 400;
+  }
+
+  .sidebar-brand p {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 2px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .sidebar-nav { flex: 1; padding: 1rem 0; }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 1.25rem;
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .nav-item:hover { color: #fff; background: rgba(255,255,255,0.05); }
+  .nav-item.active { color: #fff; border-left-color: #e8c97a; background: rgba(255,255,255,0.07); }
+  .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+  .sidebar-footer {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .logout-btn {
+    width: 100%;
+    padding: 8px;
+    background: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.6);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .logout-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+  .main { margin-left: 220px; min-height: 100vh; display: flex; flex-direction: column; }
+
+  .topbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-100);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .topbar h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    color: var(--maroon-dark);
+    font-weight: 400;
+  }
+
+  .topbar-user { font-size: 12px; color: var(--gray-500); }
+  .content { padding: 2rem; flex: 1; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* SUBJECT CARDS */
+  .subject-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .subject-card {
+    background: var(--white);
+    border: 1px solid var(--gray-100);
+    border-radius: 8px;
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .subject-card:hover { border-color: var(--maroon); background: var(--maroon-bg); }
+  .subject-card.active { border-color: var(--maroon); border-width: 2px; }
+
+  .subject-card-code {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--maroon);
+    margin-bottom: 4px;
+  }
+
+  .subject-card-name {
+    font-size: 12px;
+    color: var(--gray-700);
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+
+  .subject-card-units {
+    font-size: 11px;
+    color: var(--gray-500);
+  }
+
+  /* TABLE */
+  .table-card {
+    background: var(--white);
+    border: 1px solid var(--gray-100);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .table-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .table-header h3 {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--maroon-dark);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead th {
+    padding: 10px 1.5rem;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--gray-500);
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  tbody tr { border-bottom: 1px solid var(--gray-100); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--maroon-bg); }
+  tbody td { padding: 10px 1.5rem; color: var(--gray-700); }
+
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 10px;
+  }
+
+  .badge-pass   { background: var(--success-bg); color: var(--success); }
+  .badge-fail   { background: var(--error-bg);   color: var(--error); }
+  .badge-none   { background: var(--gray-100);   color: var(--gray-500); }
+
+  .grade-input {
+    width: 70px;
+    padding: 5px 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    border: 1px solid var(--gray-300);
+    border-radius: 4px;
+    outline: none;
+    text-align: center;
+  }
+
+  .grade-input:focus { border-color: var(--maroon); }
+
+  .btn-save {
+    padding: 5px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    background: var(--maroon);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-save:hover { background: var(--maroon-dark); }
+  .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--gray-500);
+    font-size: 14px;
+  }
+
+  .profile-card {
+    background: var(--white);
+    border: 1px solid var(--gray-100);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .profile-avatar {
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    background: var(--maroon);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .profile-info h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    color: var(--maroon-dark);
+    font-weight: 400;
+  }
+
+  .profile-info p { font-size: 13px; color: var(--gray-500); }
+
+  .section-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 10px;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 300;
+    display: none;
+  }
+
+  .toast-success { background: var(--success); color: #fff; }
+  .toast-error   { background: var(--error);   color: #fff; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .content { animation: fadeIn 0.3s ease both; }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <img src="/assets/CED-Logo.jpg" alt="CED"/>
+    <h2>CED Pre-Enrollment System</h2>
+    <p>Teacher Portal</p>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-item active" onclick="showPanel('subjects', this)">
+      <span class="nav-dot"></span> My Subjects
+    </div>
+    <div class="nav-item" onclick="showPanel('grades', this)">
+      <span class="nav-dot"></span> Enter Grades
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()">Sign Out</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <h1>Teacher Dashboard</h1>
+    <span class="topbar-user" id="topbarUser">Teacher</span>
+  </div>
+
+  <div class="content">
+
+    <!-- MY SUBJECTS PANEL -->
+    <div class="panel active" id="panel-subjects">
+      <div class="profile-card">
+        <div class="profile-avatar" id="teacherAvatar">—</div>
+        <div class="profile-info">
+          <h2 id="teacherName">Loading...</h2>
+          <p id="teacherDept">—</p>
+        </div>
+      </div>
+
+      <p class="section-label">Assigned Subjects</p>
+      <div class="subject-grid" id="subjectGrid">
+        <div class="empty-state">Loading subjects...</div>
+      </div>
+    </div>
+
+    <!-- ENTER GRADES PANEL -->
+    <div class="panel" id="panel-grades">
+      <p class="section-label" style="margin-bottom: 1rem;">Select a subject to view enrolled students</p>
+
+      <div class="subject-grid" id="gradeSubjectGrid">
+        <div class="empty-state">Loading subjects...</div>
+      </div>
+
+      <div id="studentGradeSection" style="display:none;">
+        <div class="table-card">
+          <div class="table-header">
+            <h3 id="gradeTableTitle">Students</h3>
+            <span style="font-size: 12px; color: var(--gray-500);" id="gradeSchoolYear"></span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Student No.</th>
+                <th>Name</th>
+                <th>Year</th>
+                <th>Current Grade</th>
+                <th>Status</th>
+                <th>Enter Grade</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="gradeTableBody">
+              <tr><td colspan="7" class="empty-state">Select a subject above.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'http://localhost:5000';
+let teacherData = null;
+let subjectsList = [];
+let selectedSubjectId = null;
+let selectedSubjectCode = '';
+
+function getToken() { return localStorage.getItem('token'); }
+
+function authHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${getToken()}`
+  };
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = '/login.html';
+}
+
+function showPanel(name, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  el.classList.add('active');
+}
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast toast-${type}`;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3000);
+}
+
+// ── LOAD TEACHER DATA ──────────────────────────────────────
+async function loadTeacher() {
+  try {
+    const res = await fetch(`${API}/api/teachers/me`, { headers: authHeaders() });
+    if (res.status === 401 || res.status === 403) { logout(); return; }
+    const data = await res.json();
+
+    teacherData = data.teacher;
+    subjectsList = data.subjects;
+
+    const initials = teacherData.first_name[0] + teacherData.last_name[0];
+    document.getElementById('teacherAvatar').textContent = initials.toUpperCase();
+    document.getElementById('teacherName').textContent = `${teacherData.first_name} ${teacherData.last_name}`;
+    document.getElementById('teacherDept').textContent = teacherData.department_name || 'CED';
+    document.getElementById('topbarUser').textContent = `${teacherData.first_name} ${teacherData.last_name}`;
+
+    renderSubjectCards('subjectGrid', false);
+    renderSubjectCards('gradeSubjectGrid', true);
+
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+function renderSubjectCards(containerId, selectable) {
+  const container = document.getElementById(containerId);
+  if (subjectsList.length === 0) {
+    container.innerHTML = '<div class="empty-state">No subjects assigned.</div>';
+    return;
+  }
+
+  container.innerHTML = subjectsList.map(s => `
+    <div class="subject-card ${selectable ? 'selectable' : ''}" 
+         id="card-${containerId}-${s.id}"
+         ${selectable ? `onclick="selectSubject(${s.id}, '${s.code} — ${s.name}')"` : ''}>
+      <div class="subject-card-code">${s.code}</div>
+      <div class="subject-card-name">${s.name}</div>
+      <div class="subject-card-units">${s.units} units</div>
+    </div>
+  `).join('');
+}
+
+// ── SELECT SUBJECT FOR GRADING ─────────────────────────────
+async function selectSubject(subjectId, label) {
+  selectedSubjectId = subjectId;
+  selectedSubjectCode = label;
+
+  document.querySelectorAll('#gradeSubjectGrid .subject-card').forEach(c => c.classList.remove('active'));
+  const card = document.getElementById(`card-gradeSubjectGrid-${subjectId}`);
+  if (card) card.classList.add('active');
+
+  document.getElementById('gradeTableTitle').textContent = label;
+  document.getElementById('studentGradeSection').style.display = 'block';
+  document.getElementById('gradeTableBody').innerHTML = '<tr><td colspan="7" class="empty-state">Loading...</td></tr>';
+
+  try {
+    const res = await fetch(`${API}/api/teachers/subject/${subjectId}/students`, { headers: authHeaders() });
+    const students = await res.json();
+
+    if (students.length === 0) {
+      document.getElementById('gradeTableBody').innerHTML = '<tr><td colspan="7" class="empty-state">No students enrolled in this subject.</td></tr>';
+      return;
+    }
+
+    const sy = students[0]?.school_year || '';
+    const sem = students[0]?.semester || '';
+    document.getElementById('gradeSchoolYear').textContent = sy ? `${sy} — Semester ${sem}` : '';
+
+    document.getElementById('gradeTableBody').innerHTML = students.map(s => `
+      <tr id="row-${s.id}">
+        <td>${s.student_number}</td>
+        <td>${s.last_name}, ${s.first_name}</td>
+        <td>Year ${s.year_level}</td>
+        <td id="grade-display-${s.id}">${s.grade !== null ? s.grade : '—'}</td>
+        <td id="status-display-${s.id}">
+          ${s.grade !== null 
+            ? `<span class="badge ${s.passed ? 'badge-pass' : 'badge-fail'}">${s.passed ? 'Passed' : 'Failed'}</span>`
+            : `<span class="badge badge-none">No grade</span>`
+          }
+        </td>
+        <td>
+          <input class="grade-input" type="number" id="input-${s.id}" 
+            min="1.0" max="5.0" step="0.25"
+            value="${s.grade !== null ? s.grade : ''}" 
+            placeholder="1.0–5.0"/>
+        </td>
+        <td>
+          <button class="btn-save" onclick="saveGrade(${s.id}, ${subjectId}, '${s.school_year}', ${s.semester})">
+            Save
+          </button>
+        </td>
+      </tr>
+    `).join('');
+
+  } catch (err) {
+    document.getElementById('gradeTableBody').innerHTML = '<tr><td colspan="7" class="empty-state">Could not load students.</td></tr>';
+  }
+}
+
+// ── SAVE GRADE ─────────────────────────────────────────────
+async function saveGrade(studentId, subjectId, schoolYear, semester) {
+  const input = document.getElementById(`input-${studentId}`);
+  const grade = parseFloat(input.value);
+
+  if (isNaN(grade) || grade < 1.0 || grade > 5.0) {
+    showToast('Grade must be between 1.0 and 5.0', 'error');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/api/teachers/grade`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ student_id: studentId, subject_id: subjectId, grade, school_year: schoolYear, semester })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      showToast(data.message || 'Failed to save grade.', 'error');
+      return;
+    }
+
+    document.getElementById(`grade-display-${studentId}`).textContent = grade.toFixed(2);
+    document.getElementById(`status-display-${studentId}`).innerHTML =
+      `<span class="badge ${data.passed === 'Passed' ? 'badge-pass' : 'badge-fail'}">${data.passed}</span>`;
+
+    showToast(`Grade saved — ${data.passed}`, 'success');
+
+  } catch (err) {
+    showToast('Cannot connect to server.', 'error');
+  }
+}
+
+// ── INIT ───────────────────────────────────────────────────
+if (!getToken() || localStorage.getItem('role') !== 'teacher') {
+  window.location.href = '/login.html';
+}
+
+loadTeacher();
+</script>
+</body>
+</html>
