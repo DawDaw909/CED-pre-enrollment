@@ -81,9 +81,22 @@ db.query(curriculumSQL, [department_id, year_level], (err, subjects) => {
     const currentYear = new Date().getFullYear();
     const school_year = `${currentYear}-${currentYear + 1}`;
 
-    const enrollmentValues = subjects.map(sub => [student_id, sub.subject_id, school_year, 1, 'auto_enrolled']);
+    const sectionSQL = `SELECT subject_id, id as section_id FROM sections WHERE school_year = ? AND semester = 1`;
 
-    const enrollSQL = `INSERT INTO enrollments (student_id, subject_id, school_year, semester, status) VALUES ?`;
+db.query(sectionSQL, [school_year], (err, sections) => {
+    if (err) console.error(err);
+
+    const sectionMap = {};
+    if (sections) sections.forEach(sec => {
+        if (!sectionMap[sec.subject_id]) sectionMap[sec.subject_id] = sec.section_id;
+    });
+
+    const enrollmentValues = subjects.map(sub => [
+        student_id, sub.subject_id, school_year, 1, 'auto_enrolled',
+        sectionMap[sub.subject_id] || null
+    ]);
+
+    const enrollSQL = `INSERT INTO enrollments (student_id, subject_id, school_year, semester, status, section_id) VALUES ?`;
 
     db.query(enrollSQL, [enrollmentValues], (err) => {
         if (err) {
@@ -113,6 +126,7 @@ db.query(curriculumSQL, [department_id, year_level], (err, subjects) => {
             });
         });
     });
+});
 });
     });
 });
@@ -386,9 +400,7 @@ router.post('/enroll-old', protect, restrictTo('student'), (req, res) => {
 
                                         const eligible = [];
                                         const notEligible = [];
-console.log('passedSubjectIds:', [...passedSubjectIds]);
-console.log('nextSubjects:', nextSubjects.map(s => s.code));
-console.log('prereqMap:', prereqMap);
+                                 
                                         nextSubjects.forEach(sub => {
                                         
                                             // Skip if student already passed this subject
@@ -431,10 +443,23 @@ console.log('prereqMap:', prereqMap);
                                             return res.json({ message: 'No eligible subjects found.', notices });
                                         }
 
-                                        const enrollValues = toEnroll.map(s => [student.id, s.subject_id, school_year, semester, 'pre_enlisted']);
-                                        db.query(
-                                            'INSERT INTO enrollments (student_id, subject_id, school_year, semester, status) VALUES ?',
-                                                [enrollValues],
+                                        const sectionSQL2 = `SELECT subject_id, id as section_id FROM sections WHERE school_year = ? AND semester = ?`;
+db.query(sectionSQL2, [school_year, semester], (err, sections) => {
+    if (err) console.error(err);
+
+    const sectionMap2 = {};
+    if (sections) sections.forEach(sec => {
+        if (!sectionMap2[sec.subject_id]) sectionMap2[sec.subject_id] = sec.section_id;
+    });
+
+    const enrollValues = toEnroll.map(s => [
+        student.id, s.subject_id, school_year, semester, 'pre_enlisted',
+        sectionMap2[s.subject_id] || null
+    ]);
+
+    db.query(
+        'INSERT INTO enrollments (student_id, subject_id, school_year, semester, status, section_id) VALUES ?',
+        [enrollValues],
                                                 (err) => {
                                                     if (err) {
                                                         console.error('Enrollment insert error:', err);
@@ -466,6 +491,7 @@ console.log('prereqMap:', prereqMap);
             );
         });
     });
+});
 });
 
 // Student submits subjects for advising
