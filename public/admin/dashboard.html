@@ -1168,6 +1168,11 @@ async function registerStudent() {
     flash('reg-error', `Please fill in: ${missing.join(', ')}`, 'error');
     return;
   }
+    const idPattern = /^\d{2}-\d{1}-\d{5}$/;
+if (!idPattern.test(body.student_number)) {
+    flash('reg-error', 'Invalid student ID format. Use format: 26-1-00001', 'error');
+    return;
+}
   if (!body.type) {
     flash('reg-error', 'Please select a student type (Shiftee) for non-first year students.', 'error');
     return;
