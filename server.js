@@ -8,7 +8,13 @@ const authRouter = require('./routes/auth');
 const app = express();
 
 // -------------------- Middleware --------------------
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:5000', 
+    'https://ced-pre-enrollment-production.up.railway.app'
+  ],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.static('public')); // Serve static HTML/CSS/JS/images
 

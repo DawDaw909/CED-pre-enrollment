@@ -166,13 +166,22 @@ async function handleLogin() {
   btn.textContent = 'Signing in...';
 
   try {
-    // Use relative path instead of localhost
+    /* Use relative path instead of localhost
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     });
+    */
+   const baseUrl = window.location.hostname.includes('railway.app') 
+  ? 'https://ced-pre-enrollment-production.up.railway.app' 
+  : '';
 
+const res = await fetch(`${baseUrl}/api/auth/login`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ username, password })
+});
     const data = await res.json();
 
     if (!res.ok) { 
