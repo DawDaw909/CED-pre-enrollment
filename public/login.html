@@ -166,11 +166,13 @@ async function handleLogin() {
   btn.textContent = 'Signing in...';
 
   try {
-const res = await fetch(`${baseUrl}/api/auth/login`, {
+    // Use relative path instead of localhost
+    const res = await fetch('/api/auth/login', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ username, password })
 });
+
     const data = await res.json();
 
     if (!res.ok) { 
