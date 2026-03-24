@@ -569,3 +569,22 @@ ALTER TABLE enrollment_settings ADD COLUMN previous_school_year VARCHAR(10) DEFA
 ALTER TABLE enrollment_settings ADD COLUMN previous_semester TINYINT DEFAULT NULL;
 
 SELECT id, student_number, first_name, last_name, type, year_level, ok_to_enroll, current_semester FROM students;
+
+ALTER TABLE subject_schedules MODIFY COLUMN day 
+ENUM('Mon/Thu','Tue/Fri','Wed/Sat','Mon','Tue','Wed','Thu','Fri','Sat') NOT NULL;
+
+ALTER TABLE sections MODIFY COLUMN day 
+ENUM('Mon/Thu','Tue/Fri','Wed/Sat','Mon','Tue','Wed','Thu','Fri','Sat') DEFAULT NULL;
+
+-- Find the student ID
+SELECT id, student_number FROM students ORDER BY id DESC LIMIT 1;
+
+DELETE FROM faculty_contacts WHERE id > 0;
+
+INSERT INTO faculty_contacts (name, role, department_id, email, phone) VALUES
+('Asst. Prof. Klint Ian V. Austero', 'Dean, College of Engineering & Design', NULL, 'klintvaustero@su.edu.ph', NULL),
+('Anie D. Escarilla', 'Secretary, College of Engineering & Design', NULL, 'eng_g@su.edu.ph', NULL),
+('Dr. Marife K. Villareal', 'Faculty, Computer Engineering', 1, 'marifekvillareal@su.edu.ph', NULL),
+('Engr. Johnson B. Diputado', 'Faculty, Computer Engineering', 1, 'johnsonbdiputado@su.edu.ph', NULL);
+
+SELECT * FROM faculty_contacts;
