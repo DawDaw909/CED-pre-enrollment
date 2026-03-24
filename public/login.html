@@ -166,7 +166,8 @@ async function handleLogin() {
   btn.textContent = 'Signing in...';
 
   try {
-    const res = await fetch('http://localhost:5000/api/auth/login', {
+    // Use relative path instead of localhost
+    const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
@@ -174,25 +175,19 @@ async function handleLogin() {
 
     const data = await res.json();
 
-    if (!res.ok) { showError(data.message || 'Login failed.'); return; }
+    if (!res.ok) { 
+      showError(data.message || 'Login failed.'); 
+      return; 
+    }
 
     localStorage.setItem('token', data.token);
     localStorage.setItem('role', data.role);
 
-    if (data.role === 'student') {
-    window.location.href = '/student/dashboard.html';
-
-    } else if (data.role === 'admin') {
-    window.location.href = '/admin/dashboard.html';
-
-    } else if (data.role === 'business_office') {
-    window.location.href = '/bfo/dashboard.html';
-    
-    } else if (data.role === 'teacher') {
-    window.location.href = '/teacher/dashboard.html';
-    }
-
-    
+    // Redirect based on role
+    if (data.role === 'student') window.location.href = '/student/dashboard.html';
+    else if (data.role === 'admin') window.location.href = '/admin/dashboard.html';
+    else if (data.role === 'business_office') window.location.href = '/bfo/dashboard.html';
+    else if (data.role === 'teacher') window.location.href = '/teacher/dashboard.html';
 
   } catch (err) {
     showError('Cannot connect to server. Please try again.');
@@ -208,6 +203,7 @@ function showError(msg) {
   el.style.display = 'block';
 }
 
+// Press Enter to submit
 document.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
 </script>
 </body>
