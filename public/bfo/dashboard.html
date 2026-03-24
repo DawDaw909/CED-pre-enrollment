@@ -239,8 +239,7 @@
   
   <nav class="nav-group">
     <div class="nav-item active" onclick="showPanel('clearance', this)">Pending Clearance</div>
-    <div class="nav-item" onclick="showPanel('history', this)">Collection History</div>
-    <div class="nav-item" onclick="showPanel('reports', this)">Financial Reports</div>
+    <div class="nav-item" onclick="showPanel('confirm', this)">Confirm Payment</div>
   </nav>
 
   <div class="logout-area">
@@ -258,131 +257,79 @@
   </div>
 
   <!-- PENDING CLEARANCE PANEL -->
-  <div class="panel active" id="panel-clearance">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <span>Total Students</span>
-        <h2 id="statTotal">0</h2>
-      </div>
-      <div class="stat-card">
-        <span>Cleared</span>
-        <h2 id="statCleared">0</h2>
-      </div>
-      <div class="stat-card">
-        <span>Pending</span>
-        <h2 id="statPending">0</h2>
-      </div>
+<div class="panel active" id="panel-clearance">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span>Total Students</span>
+      <h2 id="statTotal">0</h2>
     </div>
+    <div class="stat-card">
+      <span>Cleared</span>
+      <h2 id="statCleared">0</h2>
+    </div>
+    <div class="stat-card">
+      <span>Pending</span>
+      <h2 id="statPending">0</h2>
+    </div>
+  </div>
 
-    <div class="content-glass">
-      <input type="text" class="search-box" id="overviewSearchInput" placeholder="Filter by Name or ID Number..." onkeyup="filterOverviewTable(this.value)">
-      <table id="overviewTable">
+  <div class="content-glass">
+    <input type="text" class="search-box" id="overviewSearchInput" placeholder="Filter by Name or ID Number..." onkeyup="filterOverviewTable(this.value)">
+    <table id="overviewTable">
+      <thead>
+        <tr>
+          <th>Student ID</th>
+          <th>Full Name</th>
+          <th>Program</th>
+          <th>Year</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="overviewTableBody">
+        <tr><td colspan="7" class="empty-state">Loading students...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CONFIRM PAYMENT PANEL -->
+<div class="panel" id="panel-confirm">
+  <div class="content-glass">
+    <h3 style="margin-bottom: 1rem;">Quick Search & Clearance</h3>
+    <div style="display: flex; gap: 10px;">
+      <input type="text" id="searchInput" class="search-box" style="flex: 1; margin-bottom: 0;" placeholder="Enter Student Number or Name..."/>
+      <button class="btn-search" onclick="searchStudent()">Search</button>
+    </div>
+    <div id="searchError" style="display: none; margin-top: 10px; color: var(--error);"></div>
+    <div id="searchResults" style="display: none; margin-top: 20px;">
+      <h4>Search Results</h4>
+      <table style="margin-top: 10px;">
         <thead>
           <tr>
             <th>Student ID</th>
             <th>Full Name</th>
             <th>Program</th>
             <th>Year</th>
-            <th>Type</th>
             <th>Status</th>
             <th>Action</th>
           </tr>
         </thead>
-        <tbody id="overviewTableBody">
-          <tr><td colspan="7" class="empty-state">Loading students...</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Search Section -->
-    <div class="content-glass search-section" style="margin-top: 20px;">
-      <h3 style="margin-bottom: 1rem;">Quick Search & Clearance</h3>
-      <div style="display: flex; gap: 10px;">
-        <input type="text" id="searchInput" class="search-box" style="flex: 1; margin-bottom: 0;" placeholder="Enter Student Number or Name..."/>
-        <button class="btn-search" onclick="searchStudent()">Search</button>
-      </div>
-      <div id="searchError" class="alert alert-error" style="display: none; margin-top: 10px;"></div>
-      <div id="searchResults" style="display: none; margin-top: 20px;">
-        <h4>Search Results</h4>
-        <table style="margin-top: 10px;">
-          <thead>
-            <tr>
-              <th>Student ID</th>
-              <th>Full Name</th>
-              <th>Program</th>
-              <th>Year</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="searchTableBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- COLLECTION HISTORY PANEL -->
-  <div class="panel" id="panel-history">
-    <div class="content-glass">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h3>Collection Log</h3>
-        <button class="btn-action" onclick="window.print()" style="background: var(--text-main);">Export PDF</button>
-      </div>
-      <input type="text" class="search-box" placeholder="Filter by Student Name or ID..." onkeyup="filterHistoryTable(this.value)">
-      <table id="historyTable">
-        <thead>
-          <tr>
-            <th>Ref #</th>
-            <th>Student ID</th>
-            <th>Student Name</th>
-            <th>Date & Time</th>
-            <th>Amount</th>
-            <th>OR Number</th>
-          </tr>
-        </thead>
-        <tbody id="historyBody">
-          <tr><td colspan="6" class="empty-state">No collection history available.</td></tr>
-        </tbody>
+        <tbody id="searchTableBody"></tbody>
       </table>
     </div>
   </div>
-
-  <!-- FINANCIAL REPORTS PANEL -->
-  <div class="panel" id="panel-reports">
-    <div class="content-glass">
-      <h3>Financial Summary</h3>
-      <p style="margin: 10px 0; color: var(--text-muted);">Daily totals as of <span id="reportDate"></span></p>
-      <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-          <span>Total Downpayments Collected</span>
-          <span style="font-weight: 600;" id="reportDownpayment">₱ 0.00</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-          <span>Arrears / Back Accounts</span>
-          <span style="font-weight: 600;" id="reportArrears">₱ 0.00</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-          <span>Miscellaneous Fees</span>
-          <span style="font-weight: 600;" id="reportMisc">₱ 0.00</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; padding-top: 15px; border-top: 2px solid var(--maroon); font-size: 1.2rem; color: var(--maroon);">
-          <strong>TOTAL REMITTANCE</strong>
-          <strong id="reportTotal">₱ 0.00</strong>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 
 <script>
-const API = 'http://localhost:3000';
+const API = 'http://localhost:5000';
 let allStudents = [];
-let allHistory = [];
 
 function updateClock() {
   const now = new Date();
   document.getElementById('liveClock').innerText = now.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true, month: 'short', day: 'numeric' });
-  document.getElementById('reportDate').innerText = now.toLocaleDateString();
 }
 setInterval(updateClock, 1000);
 updateClock();
@@ -407,12 +354,6 @@ function showPanel(panelId, navEl) {
   document.getElementById('panel-' + panelId).classList.add('active');
   navEl.classList.add('active');
   document.getElementById('viewTitle').innerText = navEl.innerText;
-  
-  if (panelId === 'history') {
-    loadHistory();
-  } else if (panelId === 'reports') {
-    loadReports();
-  }
 }
 
 // ── LOAD ALL STUDENTS FOR OVERVIEW ──────────────────────────────────────
@@ -547,62 +488,6 @@ async function confirmPayment(studentId, btn) {
     btn.disabled = false;
     btn.textContent = 'Confirm Payment';
     alert('Cannot connect to server.');
-  }
-}
-
-// ── LOAD COLLECTION HISTORY ─────────────────────────────────
-async function loadHistory() {
-  try {
-    const res = await fetch(`${API}/api/payments/history`, { headers: authHeaders() });
-    if (res.status === 401 || res.status === 403) { logout(); return; }
-    allHistory = await res.json();
-    renderHistory(allHistory);
-  } catch (err) {
-    document.getElementById('historyBody').innerHTML =
-      `<tr><td colspan="6" class="empty-state">Could not load history.</td></tr>`;
-  }
-}
-
-function renderHistory(history) {
-  const tbody = document.getElementById('historyBody');
-  if (!history || history.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No collection history available.</td></tr>`;
-    return;
-  }
-  tbody.innerHTML = history.map(h => `
-    <tr>
-      <td>${escapeHtml(h.reference_number || 'OR-' + h.id)}</td>
-      <td>${escapeHtml(h.student_number)}</td>
-      <td>${escapeHtml(h.student_name)}</td>
-      <td>${new Date(h.payment_date).toLocaleString()}</td>
-      <td>₱ ${parseFloat(h.amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-      <td>${escapeHtml(h.or_number || '—')}</td>
-    </tr>
-  `).join('');
-}
-
-function filterHistoryTable(query) {
-  const q = query.toLowerCase();
-  const filtered = allHistory.filter(h =>
-    h.student_number?.toLowerCase().includes(q) ||
-    h.student_name?.toLowerCase().includes(q)
-  );
-  renderHistory(filtered);
-}
-
-// ── LOAD FINANCIAL REPORTS ──────────────────────────────────
-async function loadReports() {
-  try {
-    const res = await fetch(`${API}/api/payments/summary`, { headers: authHeaders() });
-    if (res.status === 401 || res.status === 403) { logout(); return; }
-    const summary = await res.json();
-    
-    document.getElementById('reportDownpayment').textContent = `₱ ${(summary.downpayment_total || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-    document.getElementById('reportArrears').textContent = `₱ ${(summary.arrears_total || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-    document.getElementById('reportMisc').textContent = `₱ ${(summary.misc_total || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-    document.getElementById('reportTotal').textContent = `₱ ${(summary.grand_total || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-  } catch (err) {
-    console.error('Could not load reports');
   }
 }
 
