@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 // -------------------- LOGIN ROUTE --------------------
+console.log('Login request received:', req.body);
 router.post('/login', (req, res) => {
     const { username, password } = req.body;
 
