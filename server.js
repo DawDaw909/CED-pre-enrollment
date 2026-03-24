@@ -21,10 +21,6 @@ app.use('/api/teachers', teacherRoutes);
 const adminRoutes = require('./routes/admin');
 app.use('/api/admin', adminRoutes);
 
-app.get('/', (req, res) => {
-    res.send('CED Pre-enrollment System API Running');
-});
-
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
