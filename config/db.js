@@ -1,35 +1,46 @@
 const mysql = require('mysql2');
 
+// Detect if we're running on Railway (production) or locally
+const isProduction = process.env.RAILWAY_ENV === 'production';
+
+// Pick the right environment variables
+const DB_CONFIG = isProduction
+  ? {
+      host: process.env.DB_HOST || process.env.MYSQLHOST,
+      user: process.env.DB_USER || process.env.MYSQLUSER,
+      password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD,
+      database: process.env.DB_NAME || process.env.MYSQLDATABASE,
+      port: process.env.DB_PORT || 3306,
+    }
+  : {
+      host: process.env.DB_HOST || 'localhost',
+      user: process.env.DB_USER || 'root',
+      password: process.env.DB_PASSWORD || '',
+      database: process.env.DB_NAME || 'ced_pre_enrollment',
+      port: process.env.DB_PORT || 3306,
+    };
+
 let db;
 
-// Detect if running on Railway
-const isRailway = process.env.RAILWAY_PRIVATE_DOMAIN !== undefined;
-
-// Use Railway vars if on Railway, else use local DB vars
-const host = isRailway ? process.env.RAILWAY_PRIVATE_DOMAIN : process.env.DB_HOST || 'localhost';
-const user = isRailway ? process.env.MYSQLUSER : process.env.DB_USER || 'root';
-const password = isRailway ? process.env.MYSQLPASSWORD : process.env.DB_PASSWORD || '';
-const database = isRailway ? process.env.MYSQLDATABASE : process.env.DB_NAME || 'my_local_db';
-const port = process.env.DB_PORT || 3306;
-
 try {
-    db = mysql.createConnection({ host, user, password, database, port });
+  db = mysql.createConnection(DB_CONFIG);
 
-    db.connect(err => {
-        if (err) {
-            console.error('Database connection failed:', err);
-        } else {
-            console.log(`Connected to MySQL (${isRailway ? 'Railway' : 'local'})`);
-        }
-    });
+  db.connect((err) => {
+    if (err) {
+      console.error('Database connection failed:', err);
+    } else {
+      console.log(`Connected to MySQL (${isProduction ? 'Railway' : 'Local'})`);
+    }
+  });
 } catch (err) {
-    console.error('DB not initialized:', err);
-    db = {
-        query: (q, params, cb) => {
-            console.error('DB query called but DB is not connected.');
-            cb(new Error('DB not connected'), null);
-        }
-    };
+  console.error('DB not initialized:', err);
+  // Export a dummy object so server routes don’t crash
+  db = {
+    query: (q, params, cb) => {
+      console.error('DB query called but DB is not connected.');
+      cb(new Error('DB not connected'), null);
+    },
+  };
 }
 
 module.exports = db;
