@@ -1,7 +1,9 @@
+// server.js
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 const path = require('path');
+const { router: authRouter } = require('./routes/auth');
 
 const app = express();
 
@@ -9,6 +11,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public')); // Serve static HTML/CSS/JS/images
+
+// -------------------- Auth Route --------------------
+app.use('/api/auth', authRouter);
 
 // -------------------- DB Connection --------------------
 try {
@@ -18,10 +23,7 @@ try {
     console.error('DB connection failed or missing. Continuing without DB.', err);
 }
 
-// -------------------- API Routes --------------------
-try { app.use('/api/auth', require('./routes/roles')); } 
-catch(err) { console.error('Failed to load auth route:', err); }
-
+// -------------------- Other API Routes --------------------
 try { app.use('/api/students', require('./routes/students')); } 
 catch(err) { console.error('Failed to load students route:', err); }
 
