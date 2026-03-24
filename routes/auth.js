@@ -5,7 +5,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 // -------------------- LOGIN ROUTE --------------------
-console.log('Login request received:', req.body);
 router.post('/login', (req, res) => {
     const { username, password } = req.body;
 
@@ -27,7 +26,7 @@ router.post('/login', (req, res) => {
             const user = results[0];
 console.log('User found:', user.username);
 console.log('Password from DB:', user.password);
-            const match = password === 'admin123';
+            const match = await bcrypt.compare(password, user.password);
             if (!match) {
                 return res.status(401).json({ message: 'Invalid username or password' });
             }
