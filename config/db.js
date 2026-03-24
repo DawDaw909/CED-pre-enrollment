@@ -2,30 +2,28 @@ const mysql = require('mysql2');
 
 let db;
 
+// Detect if running on Railway
+const isRailway = process.env.RAILWAY_PRIVATE_DOMAIN !== undefined;
+
+// Use Railway vars if on Railway, else use local DB vars
+const host = isRailway ? process.env.RAILWAY_PRIVATE_DOMAIN : process.env.DB_HOST || 'localhost';
+const user = isRailway ? process.env.MYSQLUSER : process.env.DB_USER || 'root';
+const password = isRailway ? process.env.MYSQLPASSWORD : process.env.DB_PASSWORD || '';
+const database = isRailway ? process.env.MYSQLDATABASE : process.env.DB_NAME || 'my_local_db';
+const port = process.env.DB_PORT || 3306;
+
 try {
-    if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_NAME) {
-        throw new Error('Missing one or more DB environment variables');
-    }
+    db = mysql.createConnection({ host, user, password, database, port });
 
-    db = mysql.createConnection({
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME,
-        port: process.env.DB_PORT || 3306
-    });
-
-    db.connect((err) => {
+    db.connect(err => {
         if (err) {
             console.error('Database connection failed:', err);
         } else {
-            console.log('Connected to MySQL');
+            console.log(`Connected to MySQL (${isRailway ? 'Railway' : 'local'})`);
         }
     });
-
 } catch (err) {
     console.error('DB not initialized:', err);
-    // Export a dummy object so server routes don’t crash
     db = {
         query: (q, params, cb) => {
             console.error('DB query called but DB is not connected.');
