@@ -5,21 +5,21 @@ const path = require('path');
 
 const app = express();
 
-// Middleware
+// -------------------- Middleware --------------------
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public')); // serve static files
+app.use(express.static('public')); // Serve static files (HTML, CSS, JS, images)
 
 // -------------------- Safe DB Connection --------------------
 try {
-    const db = require('./config/db'); // make sure ./config/db exports a connection
+    const db = require('./config/db'); // your DB module
     console.log('DB module loaded');
 } catch (err) {
     console.error('DB connection failed or missing. Continuing without DB.', err);
 }
 
 // -------------------- API Routes --------------------
-// Wrap require in try/catch to avoid crash if route fails
+// Wrap route loading in try/catch so a broken route won’t crash the server
 try { app.use('/api/students', require('./routes/students')); } 
 catch(err) { console.error('Failed to load students route:', err); }
 
@@ -38,10 +38,8 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-// Optional catch-all for single-page apps (React, Vue, etc.)
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
+// No catch-all route needed for your static HTML setup
+// express.static() already handles /student/dashboard.html, /admin/dashboard.html, etc.
 
 // -------------------- Start Server --------------------
 const PORT = process.env.PORT || 5000;
