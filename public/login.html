@@ -171,7 +171,7 @@ async function handleLogin() {
   btn.textContent = 'Signing in...';
 
   try {
-    const res = await fetch('http://127.0.0.1:3000/api/auth/login', {
+    const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
@@ -192,6 +192,10 @@ async function handleLogin() {
 
     } else if (data.role === 'business_office') {
     window.location.href = '/bfo/dashboard.html';
+    
+  
+    } else if (data.role === 'teacher') {
+    window.location.href = '/teacher/dashboard.html';
     }
 
 
