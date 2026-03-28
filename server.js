@@ -1,30 +1,52 @@
+// server.js
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const path = require('path');
+const authRouter = require('./routes/auth');
 
 const app = express();
-app.use(cors());
+
+// -------------------- Middleware --------------------
+app.use(cors({
+  origin: [
+    'http://localhost:5000', 
+    'https://ced-pre-enrollment-production.up.railway.app'
+  ],
+  credentials: true
+}));
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static('public')); // Serve static HTML/CSS/JS/images
 
-const db = require('./config/db');
+// -------------------- Auth Route --------------------
+app.use('/api/auth', authRouter);
 
-const studentRoutes = require('./routes/students');
-app.use('/api/students', studentRoutes);
+// -------------------- DB Connection --------------------
+try {
+    const db = require('./config/db'); 
+    console.log('DB module loaded');
+} catch (err) {
+    console.error('DB connection failed or missing. Continuing without DB.', err);
+}
 
-const roleRoutes = require('./routes/roles');
-app.use('/api/auth', roleRoutes);
+// -------------------- Other API Routes --------------------
+try { app.use('/api/students', require('./routes/students')); } 
+catch(err) { console.error('Failed to load students route:', err); }
 
-const teacherRoutes = require('./routes/teachers');
-app.use('/api/teachers', teacherRoutes);
+try { app.use('/api/teachers', require('./routes/teachers')); } 
+catch(err) { console.error('Failed to load teachers route:', err); }
 
-const adminRoutes = require('./routes/admin');
-app.use('/api/admin', adminRoutes);
+try { app.use('/api/admin', require('./routes/admin')); } 
+catch(err) { console.error('Failed to load admin route:', err); }
 
+// -------------------- Frontend Routes --------------------
+// Serve login page at root
 app.get('/', (req, res) => {
-    res.send('CED Pre-enrollment System API Running');
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-app.listen(5000, () => {
-    console.log('Server running on port 5000');
+// -------------------- Start Server --------------------
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });

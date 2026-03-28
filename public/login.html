@@ -171,15 +171,19 @@ async function handleLogin() {
   btn.textContent = 'Signing in...';
 
   try {
+    // Use relative path instead of localhost
     const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    });
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ username, password })
+});
 
     const data = await res.json();
 
-    if (!res.ok) { showError(data.message || 'Login failed.'); return; }
+    if (!res.ok) { 
+      showError(data.message || 'Login failed.'); 
+      return; 
+    }
 
     localStorage.setItem('token', data.token);
     localStorage.setItem('role', data.role);
@@ -213,6 +217,7 @@ function showError(msg) {
   el.style.display = 'block';
 }
 
+// Press Enter to submit
 document.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
 </script>
 </body>

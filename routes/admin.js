@@ -175,9 +175,13 @@ router.patch('/sections/:section_id', protect, restrictTo('admin'), (req, res) =
 
 // Delete a section
 router.delete('/sections/:section_id', protect, restrictTo('admin'), (req, res) => {
-    db.query('DELETE FROM sections WHERE id = ?', [req.params.section_id], (err) => {
+    // Remove section reference from enrollments first
+    db.query('UPDATE enrollments SET section_id = NULL WHERE section_id = ?', [req.params.section_id], (err) => {
         if (err) return res.status(500).json({ message: 'Database error', error: err });
-        res.json({ message: 'Section deleted.' });
+        db.query('DELETE FROM sections WHERE id = ?', [req.params.section_id], (err) => {
+            if (err) return res.status(500).json({ message: 'Database error', error: err });
+            res.json({ message: 'Section deleted.' });
+        });
     });
 });
 
